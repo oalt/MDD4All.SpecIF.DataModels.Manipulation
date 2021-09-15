@@ -111,7 +111,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 					{
 						Value firstValue = property.Values[0];
 
-						result = firstValue.ToString();
+						result = firstValue.ToString(language);
 					}
 					//LanguageValue languageValue = property.Value.LanguageValues.FirstOrDefault(val => val.Language == language);
 
