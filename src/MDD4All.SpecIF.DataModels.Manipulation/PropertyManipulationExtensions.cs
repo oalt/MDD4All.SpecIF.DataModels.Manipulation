@@ -35,6 +35,19 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 			return result;
 		}
 
+		public static string GetClassTitle(this Property property, ISpecIfMetadataReader dataProvider)
+		{
+			string result = null;
+
+			PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
+
+			if (propertyClass != null)
+			{
+				result = propertyClass.Title;
+			}
+			return result;
+		}
+
 		public static string GetStringValue(this Property property, ISpecIfMetadataReader dataProvider, string language = "en")
 		{
 			string result = "";
