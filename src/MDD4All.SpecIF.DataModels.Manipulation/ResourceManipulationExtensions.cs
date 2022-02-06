@@ -244,5 +244,10 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             //	resource.Title.LanguageValues.Add(new LanguageValue(title));
             //}
         }
+
+        public static Key Key(this Resource resource)
+        {
+            return new Key(resource.ID, resource.Revision);
+        }
     }
 }
