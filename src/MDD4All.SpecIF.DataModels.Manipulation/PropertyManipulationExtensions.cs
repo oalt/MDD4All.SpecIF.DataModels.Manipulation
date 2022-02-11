@@ -2,144 +2,151 @@
  * Copyright (c) MDD4All.de, Dr. Oliver Alt
  */
 using MDD4All.SpecIF.DataProvider.Contracts;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MDD4All.SpecIF.DataModels.Manipulation
 {
     public static class PropertyManipulationExtensions
     {
-		public static string GetDataTypeType(this Property property, ISpecIfMetadataReader dataProvider)
-		{
-			string result = "";
+        public static string GetDataTypeType(this Property property, ISpecIfMetadataReader dataProvider)
+        {
+            string result = "";
 
-			PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
+            PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
 
-			if (propertyClass != null)
-			{
-				DataType dataType = dataProvider.GetDataTypeByKey(propertyClass.DataType);
-				result = dataType.Type;
-			}
-			return result;
-		}
+            if (propertyClass != null)
+            {
+                DataType dataType = dataProvider.GetDataTypeByKey(propertyClass.DataType);
+                result = dataType.Type;
+            }
+            return result;
+        }
 
-		public static DataType GetDataType(this Property property, ISpecIfMetadataReader dataProvider)
-		{
-			DataType result = null;
+        public static DataType GetDataType(this Property property, ISpecIfMetadataReader dataProvider)
+        {
+            DataType result = null;
 
-			PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
+            PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
 
-			if (propertyClass != null)
-			{
-				DataType dataType = dataProvider.GetDataTypeByKey(propertyClass.DataType);
-				result = dataType;
-			}
-			return result;
-		}
+            if (propertyClass != null)
+            {
+                DataType dataType = dataProvider.GetDataTypeByKey(propertyClass.DataType);
+                result = dataType;
+            }
+            return result;
+        }
 
-		public static string GetClassTitle(this Property property, ISpecIfMetadataReader dataProvider)
-		{
-			string result = null;
+        public static string GetClassTitle(this Property property, ISpecIfMetadataReader dataProvider)
+        {
+            string result = null;
 
-			PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
+            PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
 
-			if (propertyClass != null)
-			{
-				result = propertyClass.Title;
-			}
-			return result;
-		}
+            if (propertyClass != null)
+            {
+                result = propertyClass.Title;
+            }
+            return result;
+        }
 
-		public static string GetStringValue(this Property property, ISpecIfMetadataReader dataProvider, string language = "en")
-		{
-			string result = "";
+        public static string GetStringValue(this Property property, ISpecIfMetadataReader metadataReader, string language = "en")
+        {
+            string result = "";
 
-			PropertyClass propertyClass = dataProvider.GetPropertyClassByKey(property.Class);
+            DataType dataType = property.GetDataType(metadataReader);
 
-			bool? isMultiple = null;
+            if (property.Values != null && property.Values.Count > 0)
+            {
+                result = property.Values[0].ToString(language);
+            }
 
-			if (propertyClass != null)
-			{
-				isMultiple = propertyClass.Multiple;
-			}
+            return result;
+        }
 
-			if (property.GetDataTypeType(dataProvider) == "xs:enumeration")
-			{
-				
+        public static List<string> GetStringValues(this Property property, ISpecIfMetadataReader metadataReader, string language = "en")
+        {
+            List<string> result = new List<string>();
 
-				DataType enumDataType = property.GetDataType(dataProvider);
+            DataType dataType = property.GetDataType(metadataReader);
 
-				if(enumDataType != null)
-				{
-					if (isMultiple != null && isMultiple == true)
-					{
-						//if (property.Value.LanguageValues?.FirstOrDefault() != null)
-						//{
-						//	char[] separator = { ',' };
+            foreach (Value value in property.Values)
+            {
+                result.Add(value.ToString(language));
+            }
+            
+            return result;
+        }
 
+        public static bool IsEnumeration(this Property property, ISpecIfMetadataReader metadataReader)
+        {
+            bool result = false;
 
-						//	string[] values = property.Value.LanguageValues[0].Text.Split(separator);
+            DataType dataType = property.GetDataType(metadataReader);
 
-						//	int counter = 0;
+            if (dataType != null)
+            {
+                // enumeration type
+                if (dataType.Enumeration != null && dataType.Enumeration.Count > 0)
+                {
+                    result = true;
+                }
+            }
 
-						//	foreach (string enumId in values)
-						//	{
-						//		EnumValue value = enumDataType.Values.Find(val => val.ID == enumId.Trim());
+            return result;
+        }
 
-						//		if (value != null)
-						//		{
-						//			result += value.Title;
+        /// <summary>
+        /// Returns the user visible enumeration values.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="metadataReader"></param>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        public static List<string> GetEnumerationValues(this Property property, 
+                                                        ISpecIfMetadataReader metadataReader,
+                                                        string language = "en")
+        {
+            List<string> result = new List<string>();
 
-						//			if (counter < values.Length - 1)
-						//			{
-						//				result += ", ";
-						//			}
+            DataType dataType = property.GetDataType(metadataReader);
 
-						//		}
-						//		counter++;
-						//	}
-						//}
-
-					}
-					else
-					{
-						if(property.Values.Count > 0)
+            if (dataType != null)
+            {
+                // enumeration type
+                if (dataType.Enumeration != null && dataType.Enumeration.Count > 0)
+                {
+                    foreach (Value value in property.Values)
+                    {
+                        EnumerationValue enumValue = null;
+                        try
                         {
-							Value firstValue = property.Values[0];
+                            enumValue = dataType.Enumeration.First(e => e.ID == value.ToString(language));
+                        }
+                        catch
+                        { }
 
-							result = firstValue.ToString();
+                        if (enumValue != null)
+                        {
+                            MultilanguageText enumText = enumValue.Value.First(v => v.Language == language);
+                            if (enumText == null && enumValue.Value.Count > 0)
+                            {
+                                enumText = enumValue.Value[0];
+                            }
+
+                            if (enumText != null)
+                            {
+                                result.Add(enumText.Text);
+                            }
                         }
 
 
-					}
-				}
-			}
-			else
-			{
-				if (isMultiple != null && isMultiple == true)
-				{
-				}
-				else
-				{
+                    }
+                } 
+            }
 
-					if (property.Values.Count > 0)
-					{
-						Value firstValue = property.Values[0];
-
-						result = firstValue.ToString(language);
-					}
-					//LanguageValue languageValue = property.Value.LanguageValues.FirstOrDefault(val => val.Language == language);
-
-					//if(languageValue == null)
-					//{
-					//	languageValue = property.Value.LanguageValues?.FirstOrDefault();
-					//}
-
-					//if (languageValue != null)
-					//{
-					//	result = languageValue.Text;
-					//}
-				}
-			}
-			return result;
-		}
+            return result;
+        
+        }
     }
 }
