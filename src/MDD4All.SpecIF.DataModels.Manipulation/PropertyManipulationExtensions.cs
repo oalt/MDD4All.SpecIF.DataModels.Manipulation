@@ -103,50 +103,83 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
         /// <param name="metadataReader"></param>
         /// <param name="language"></param>
         /// <returns></returns>
-        public static List<string> GetEnumerationValues(this Property property, 
-                                                        ISpecIfMetadataReader metadataReader,
-                                                        string language = "en")
+        public static List<List<string>> GetEnumerationValues(this Property property, 
+                                                              ISpecIfMetadataReader metadataReader,
+                                                              string language = "en")
         {
-            List<string> result = new List<string>();
+            List<List<string>> result = new List<List<string>>();
+
+            PropertyClass propertyClass = metadataReader.GetPropertyClassByKey(property.Class);
 
             DataType dataType = property.GetDataType(metadataReader);
 
-            if (dataType != null)
+            if (propertyClass != null && dataType != null)
             {
                 // enumeration type
                 if (dataType.Enumeration != null && dataType.Enumeration.Count > 0)
                 {
-                    foreach (Value value in property.Values)
+                    // property with multiple values
+                    if(propertyClass.Multiple.HasValue && propertyClass.Multiple.Value)
                     {
-                        EnumerationValue enumValue = null;
-                        try
+                        List<string> enumTexts = new List<string>();
+
+                        foreach (Value value in property.Values)
                         {
-                            enumValue = dataType.Enumeration.First(e => e.ID == value.ToString(language));
+                            string id = value.ToSimpleTextString(language);
+
+                            enumTexts.Add(GetEnumTextForIdValue(id, dataType, language));
+
+                            result.Add(enumTexts);
                         }
-                        catch
-                        { }
-
-                        if (enumValue != null)
-                        {
-                            MultilanguageText enumText = enumValue.Value.First(v => v.Language == language);
-                            if (enumText == null && enumValue.Value.Count > 0)
-                            {
-                                enumText = enumValue.Value[0];
-                            }
-
-                            if (enumText != null)
-                            {
-                                result.Add(enumText.Text);
-                            }
-                        }
-
-
                     }
+                    else // property with single values
+                    {
+                        string id = property.GetStringValue(metadataReader, language);
+
+                        List<string> enumValues = new List<string>();
+
+                        enumValues.Add(GetEnumTextForIdValue(id, dataType, language));
+
+                        result.Add(enumValues);
+                    }
+
                 } 
             }
 
             return result;
         
+        }
+
+        private static string GetEnumTextForIdValue(string idValue, 
+                                                    DataType dataType,
+                                                    string language = "en")
+        {
+            string result = "";
+
+            EnumerationValue enumValue = null;
+            try
+            {
+                enumValue = dataType.Enumeration.First(e => e.ID == idValue);
+            }
+            catch
+            { }
+
+            if (enumValue != null)
+            {
+                MultilanguageText enumText = enumValue.Value.First(v => v.Language == language);
+                // language not found, take first value as default
+                if (enumText == null && enumValue.Value.Count > 0)
+                {
+                    enumText = enumValue.Value[0];
+                }
+
+                if (enumText != null)
+                {
+                    result = enumText.Text;
+                }
+            }
+
+            return result;
         }
     }
 }
