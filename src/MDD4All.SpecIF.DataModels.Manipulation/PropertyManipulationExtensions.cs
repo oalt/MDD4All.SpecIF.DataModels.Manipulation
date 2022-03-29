@@ -58,7 +58,31 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             if (property.Values != null && property.Values.Count > 0)
             {
-                result = property.Values[0].ToString(language);
+                Value firstValue = property.Values[0];
+
+                if (firstValue.StringValue != null)
+                {
+                    result = firstValue.StringValue;
+                }
+                else if (firstValue.MultilanguageTexts != null && firstValue.MultilanguageTexts.Count > 0)
+                {
+                    foreach (MultilanguageText multilanguageText in firstValue.MultilanguageTexts)
+                    {
+                        if (multilanguageText.Language == null || multilanguageText.Language == "en")
+                        {
+                            if (language == null || language == "en")
+                            {
+                                result = multilanguageText.Text;
+                                break;
+                            }
+                            else if (multilanguageText.Language == language)
+                            {
+                                result = multilanguageText.Text;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             return result;
@@ -74,7 +98,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             {
                 result.Add(value.ToString(language));
             }
-            
+
             return result;
         }
 
@@ -103,7 +127,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
         /// <param name="metadataReader"></param>
         /// <param name="language"></param>
         /// <returns></returns>
-        public static List<List<string>> GetEnumerationValues(this Property property, 
+        public static List<List<string>> GetEnumerationValues(this Property property,
                                                               ISpecIfMetadataReader metadataReader,
                                                               string language = "en")
         {
@@ -119,7 +143,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                 if (dataType.Enumeration != null && dataType.Enumeration.Count > 0)
                 {
                     // property with multiple values
-                    if(propertyClass.Multiple.HasValue && propertyClass.Multiple.Value)
+                    if (propertyClass.Multiple.HasValue && propertyClass.Multiple.Value)
                     {
                         List<string> enumTexts = new List<string>();
 
@@ -143,14 +167,14 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                         result.Add(enumValues);
                     }
 
-                } 
+                }
             }
 
             return result;
-        
+
         }
 
-        private static string GetEnumTextForIdValue(string idValue, 
+        private static string GetEnumTextForIdValue(string idValue,
                                                     DataType dataType,
                                                     string language = "en")
         {
@@ -166,7 +190,28 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             if (enumValue != null)
             {
-                MultilanguageText enumText = enumValue.Value.First(v => v.Language == language);
+                MultilanguageText enumText = null;
+
+                foreach (MultilanguageText multilanguageText in enumValue.Value)
+                {
+                    if (language == null || language == "en")
+                    {
+                        if (multilanguageText.Language == null || multilanguageText.Language == "en")
+                        {
+                            enumText = multilanguageText;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (multilanguageText.Language != null && multilanguageText.Language == language)
+                        {
+                            enumText = multilanguageText;
+                            break;
+                        }
+                    }
+                }
+
                 // language not found, take first value as default
                 if (enumText == null && enumValue.Value.Count > 0)
                 {
