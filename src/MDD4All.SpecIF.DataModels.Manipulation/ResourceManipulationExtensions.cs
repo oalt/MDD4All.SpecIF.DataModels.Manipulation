@@ -161,7 +161,14 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             {
                 if (property.Class.ID == propertyClassKey.ID && property.Class.Revision == propertyClassKey.Revision)
                 {
-                    property.Values[0] = value;
+                    if (property.Values.Count == 0)
+                    {
+                        property.Values.Add(value);
+                    }
+                    else
+                    {
+                        property.Values[0] = value;
+                    }
                     propertyFound = true;
                     break;
                 }
