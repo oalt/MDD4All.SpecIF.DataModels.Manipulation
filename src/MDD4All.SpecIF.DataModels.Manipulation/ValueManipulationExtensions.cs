@@ -38,5 +38,71 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             return result;
         }
+
+        //public static string ToSimpleTextString(this object value)
+        //{
+        //    string result = "";
+        //    if (value is string)
+        //    {
+        //        result = (string)value;
+        //    }
+        //    else if (value is object[])
+        //    {
+
+        //    }
+
+        //    return result;
+        //}
+
+        public static string ToSimpleTextString(this Value value, string language = "en")
+        {
+            string result = "";
+
+            if (value.StringValue != null)
+            {
+                result = value.StringValue;
+            }
+            else if (value.MultilanguageTexts.Count > 0)
+            {
+                try
+                {
+                    result = value.MultilanguageTexts.First(mlt => mlt.Language == language).Text;
+
+                    if (result == null)
+                    {
+                        result = value.MultilanguageTexts[0].Text;
+                    }
+                }
+                catch
+                { }
+
+            }
+
+            return result;
+        }
+
+        public static bool IsMultilanguageValue(this Value value)
+        {
+            bool result = false;
+
+            result = !(value.MultilanguageTexts == null || value.MultilanguageTexts.Count == 0);
+
+            return result;
+            
+        }
+
+        public static bool IsStringValue(this Value value)
+        {
+            bool result = false;
+            
+            result = value.StringValue != null;
+
+            return result;
+        }
+
+        public static string ToString(this Value value, string language)
+        {
+            return value.ToSimpleTextString(language);
+        }
     }
 }
