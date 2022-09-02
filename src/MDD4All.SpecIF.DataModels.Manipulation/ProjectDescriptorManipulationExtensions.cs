@@ -8,11 +8,19 @@
 
             foreach(MultilanguageText multilanguageText in projectDescriptor.Title)
             {
+                if(multilanguageText.Language == null && !string.IsNullOrEmpty(multilanguageText.Text))
+                {
+                    result = multilanguageText.Text;
+                    break;
+                }
+
                 if(multilanguageText.Language == language)
                 {
                     result = multilanguageText.Text;
                 }
             }
+
+            
 
             return result;
         }
