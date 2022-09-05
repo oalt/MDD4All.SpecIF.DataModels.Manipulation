@@ -75,7 +75,10 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                                 result = multilanguageText.Text;
                                 break;
                             }
-                            else if (multilanguageText.Language == language)
+                        }
+                        else if(multilanguageText.Language != null)
+                        {
+                            if (multilanguageText.Language == language)
                             {
                                 result = multilanguageText.Text;
                                 break;
