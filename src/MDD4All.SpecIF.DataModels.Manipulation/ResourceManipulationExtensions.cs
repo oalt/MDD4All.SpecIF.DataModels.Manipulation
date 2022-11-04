@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Xml.XPath;
 
 namespace MDD4All.SpecIF.DataModels.Manipulation
 {
@@ -255,6 +256,97 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
         public static Key Key(this Resource resource)
         {
             return new Key(resource.ID, resource.Revision);
+        }
+
+        public static Resource CreateNewRevisionForEdit(this Resource resource, ISpecIfMetadataReader metadataReader)
+        {
+            Resource result = new Resource()
+            {
+                ID = resource.ID,
+                Revision = SpecIfGuidGenerator.CreateNewRevsionGUID(),
+                Replaces = new List<string>()
+                {
+                    resource.Revision
+                },
+                Class = new Key(resource.Class.ID, resource.Class.Revision),
+                ProjectID = resource.ProjectID,
+            };
+
+            if(resource.AlternativeIDs!=null)
+            {
+                foreach(AlternativeId alternativeID in resource.AlternativeIDs)
+                {
+                    result.AlternativeIDs.Add(new AlternativeId()
+                    {
+                        ID = alternativeID.ID,
+                        Project = alternativeID.Project,
+                        Revision = alternativeID.Revision
+                    });
+                }
+            }
+
+            ResourceClass resourceClass = metadataReader.GetResourceClassByKey(resource.Class);
+
+            if (resourceClass != null)
+            {
+                foreach (Key propertyClassKey in resourceClass.PropertyClasses)
+                {
+                    Property property = new Property
+                    {
+                        Class = new Key(propertyClassKey.ID, propertyClassKey.Revision),
+                        Values = new List<Value>()
+                    };
+                    result.Properties.Add(property);
+                }
+
+                foreach (Property property in resource.Properties)
+                {
+                    foreach (Property clonedProperty in result.Properties)
+                    {
+                        if (clonedProperty.Class.Equals(property.Class))
+                        {
+                            foreach (Value value in property.Values)
+                            {
+                                Value clonedValue = new Value();
+                                clonedValue.StringValue = value.StringValue;
+                                foreach (MultilanguageText text in value.MultilanguageTexts)
+                                {
+                                    clonedValue.MultilanguageTexts.Add(text);
+                                }
+                                clonedProperty.Values.Add(clonedValue);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (Property property in resource.Properties)
+                {
+                    Property clonedProperty = new Property()
+                    {
+                        Class = new Key(property.Class.ID, property.Class.Revision)
+
+                    };
+
+
+                    foreach (Value value in property.Values)
+                    {
+                        Value clonedValue = new Value();
+                        clonedValue.StringValue = value.StringValue;
+                        foreach (MultilanguageText text in value.MultilanguageTexts)
+                        {
+                            clonedValue.MultilanguageTexts.Add(text);
+                        }
+                        clonedProperty.Values.Add(clonedValue);
+                    }
+
+                    result.Properties.Add(clonedProperty);
+
+                }
+            }
+
+            return result;
         }
     }
 }
