@@ -177,6 +177,109 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
         }
 
+        public static string GetSingleEnumerationValue(this Property property,
+                                                       int index = 0)
+        {
+            string result = null;
+
+            if(index <= property.Values.Count - 1)
+            {
+                Value value = property.Values[index];
+                if (value != null)
+                {
+                    result = value.StringValue;
+                }
+            }
+
+            return result;
+        }
+
+        public static List<string> GetMultipleEnumerationValue(this Property property,
+                                                         int index = 0)
+        {
+            List<string> result = new List<string>();
+
+            if (index <= property.Values.Count - 1)
+            {
+                Value value = property.Values[index];
+                if (value != null && value.StringValue != null)
+                {
+                    string multiValueString = value.StringValue;
+
+                    string[] tokens = multiValueString.Split(new char[] { ',' });
+
+                    foreach(string token in tokens)
+                    {
+                        result.Add(token);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static void SetSingleEnumerationValue(this Property property,
+                                                     string valueID,
+                                                     int index = 0)
+        {
+            if(property.Values == null)
+            {
+                property.Values = new List<Value>();
+            }
+
+            // Add empty values if the index can not be used in current property structure
+            if(index > property.Values.Count - 1)
+            {
+                for(int counter = property.Values.Count; counter <= index; counter++)
+                {
+                    property.Values.Add(new Value());
+                }
+            }
+
+            property.Values[index].StringValue = valueID;
+        }
+
+        public static void SetMultipleEnumerationValue(this Property property,
+                                                       List<string> valueIds,
+                                                       int index = 0)
+        {
+            if (property.Values == null)
+            {
+                property.Values = new List<Value>();
+            }
+
+            // Add empty values if the index can not be used in current property structure
+            if (index > property.Values.Count - 1)
+            {
+                for (int counter = property.Values.Count; counter <= index; counter++)
+                {
+                    property.Values.Add(new Value());
+                }
+            }
+
+            string multiValue = "";
+
+            if (valueIds.Count > 0)
+            {
+                for (int counter = 0; counter < valueIds.Count; counter++)
+                {
+                    multiValue += valueIds[counter];
+
+                    if (counter < valueIds.Count - 1)
+                    {
+                        multiValue += ",";
+                    }
+                }
+
+
+                property.Values[index].StringValue = multiValue;
+            }
+            else
+            {
+                property.Values[index].StringValue = null;
+            }
+        }
+
         private static string GetEnumTextForIdValue(string idValue,
                                                     DataType dataType,
                                                     string language = "en")
