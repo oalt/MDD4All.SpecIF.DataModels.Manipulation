@@ -280,6 +280,100 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             }
         }
 
+        public static bool IsDifferentTo(this Property propertyOne, Property propertyTwo)
+        {
+            bool result = false;
+
+            // only start compare operation if the classes are equal
+            if(propertyOne.Class.Equals(propertyTwo.Class))
+            {
+                if (propertyOne.Values != null && propertyTwo.Values != null)
+                {
+                    if (propertyOne.Values.Count == propertyTwo.Values.Count)
+                    {
+                        for (int counter = 0; counter < propertyOne.Values.Count; counter++)
+                        {
+                            Value valueOne = propertyOne.Values[counter];
+                            Value valueTwo = propertyTwo.Values[counter];
+
+                            if(valueOne.StringValue != null && valueTwo.StringValue != null)
+                            {
+                                if(valueOne.StringValue != valueTwo.StringValue)
+                                {
+                                    result = true;
+                                }
+                            }
+                            else if(valueOne.MultilanguageTexts != null && valueOne.MultilanguageTexts.Any() && 
+                                    valueTwo.MultilanguageTexts != null && valueTwo.MultilanguageTexts.Any())
+                            {
+                                if(valueOne.MultilanguageTexts.Count == valueTwo.MultilanguageTexts.Count)
+                                {
+                                    foreach(MultilanguageText multilanguageTextOne in valueOne.MultilanguageTexts)
+                                    {
+                                        if(multilanguageTextOne.Language == null)
+                                        {
+                                            MultilanguageText multilangiageTextTwo = valueTwo.MultilanguageTexts.Find(mlt => mlt.Language == null);
+                                            if(multilangiageTextTwo == null)
+                                            {
+                                                result = true;
+                                            }
+                                            else
+                                            {
+                                                if(multilanguageTextOne.Text == multilangiageTextTwo.Text &&
+                                                   multilanguageTextOne.Format == multilangiageTextTwo.Format)
+                                                { 
+                                                    // it is equal
+                                                }
+                                                else
+                                                {
+                                                    result = true;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            MultilanguageText multilangiageTextTwo = valueTwo.MultilanguageTexts.Find(mlt => mlt.Language == multilanguageTextOne.Language);
+                                            if (multilangiageTextTwo == null)
+                                            {
+                                                result = true;
+                                            }
+                                            else
+                                            {
+                                                if (multilanguageTextOne.Text == multilangiageTextTwo.Text &&
+                                                   multilanguageTextOne.Format == multilangiageTextTwo.Format)
+                                                {
+                                                    // it is equal
+                                                }
+                                                else
+                                                {
+                                                    result = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    result = true;
+                                }
+                            }
+                            else
+                            {
+                                result = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+                    }
+                }
+                
+            }
+
+            return result;
+        }
+
         private static string GetEnumTextForIdValue(string idValue,
                                                     DataType dataType,
                                                     string language = "en")
@@ -332,5 +426,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             return result;
         }
+
+       
     }
 }
