@@ -6,8 +6,6 @@ using MDD4All.SpecIF.DataProvider.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Xml.XPath;
 
 namespace MDD4All.SpecIF.DataModels.Manipulation
 {
@@ -20,6 +18,11 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             try
             {
                 ResourceClass resourceType = dataProvider.GetResourceClassByKey(resource.Class);
+                if (resource is Statement)
+                {
+                    resourceType = dataProvider.GetStatementClassByKey(resource.Class);
+                }
+                
 
                 if (resourceType != null)
                 {
