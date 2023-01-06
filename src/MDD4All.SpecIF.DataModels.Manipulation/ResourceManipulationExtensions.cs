@@ -17,8 +17,13 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             try
             {
-                ResourceClass resourceType = dataProvider.GetResourceClassByKey(resource.Class);
-                if (resource is Statement)
+                ResourceClass resourceType = null;
+
+                if (resource.GetType() == typeof(Resource))
+                {
+                    resourceType = dataProvider.GetResourceClassByKey(resource.Class);
+                }
+                else if (resource.GetType() == typeof(Statement))
                 {
                     resourceType = dataProvider.GetStatementClassByKey(resource.Class);
                 }
