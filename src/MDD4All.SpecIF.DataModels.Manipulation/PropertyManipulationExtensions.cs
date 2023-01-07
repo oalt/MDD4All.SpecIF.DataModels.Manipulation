@@ -383,7 +383,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             EnumerationValue enumValue = null;
             try
             {
-                enumValue = dataType.Enumeration.First(e => e.ID == idValue);
+                enumValue = dataType.Enumeration.Find(e => e.ID == idValue);
             }
             catch
             { }
