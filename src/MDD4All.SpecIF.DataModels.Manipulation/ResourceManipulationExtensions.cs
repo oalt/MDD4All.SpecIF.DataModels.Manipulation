@@ -45,6 +45,40 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             return result;
         }
 
+        public static string GetClassRevision(this Resource resource, ISpecIfMetadataReader metadataReader)
+        {
+            string result = "";
+
+            try
+            {
+                ResourceClass resourceType = null;
+
+                if (resource.GetType() == typeof(Resource))
+                {
+                    resourceType = metadataReader.GetResourceClassByKey(resource.Class);
+                }
+                else if (resource.GetType() == typeof(Statement))
+                {
+                    resourceType = metadataReader.GetStatementClassByKey(resource.Class);
+                }
+
+
+                if (resourceType != null)
+                {
+                    if (!string.IsNullOrEmpty(resourceType.Revision))
+                    {
+                        result = resourceType.Revision;
+                    }
+                    
+                }
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine("Error with getTypeName() " + exception);
+            }
+            return result;
+        }
+
         public static ResourceClass GetResourceType(this Resource resource, ISpecIfMetadataReader dataProvider)
         {
             ResourceClass result = null;
