@@ -108,6 +108,10 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                 {
                     if (propertyClass.Title == propertyTitle)
                     {
+                        if (property.Values == null)
+                        {
+                            property.Values = new List<Value>();
+                        }
                         if (property.Values.Count == 0)
                         {
                             property.Values.Add(value);
@@ -170,6 +174,10 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             {
                 if (property.Class.ID == propertyClassKey.ID && property.Class.Revision == propertyClassKey.Revision)
                 {
+                    if (property.Values == null)
+                    {
+                        property.Values = new List<Value>();
+                    }
                     if (property.Values.Count == 0)
                     {
                         property.Values.Add(value);

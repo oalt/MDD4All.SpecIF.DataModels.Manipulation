@@ -97,9 +97,12 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             DataType dataType = property.GetDataType(metadataReader);
 
-            foreach (Value value in property.Values)
+            if (property.Values != null)
             {
-                result.Add(value.ToString(language));
+                foreach (Value value in property.Values)
+                {
+                    result.Add(value.ToString(language));
+                }
             }
 
             return result;
@@ -150,13 +153,16 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                     {
                         List<string> enumTexts = new List<string>();
 
-                        foreach (Value value in property.Values)
+                        if (property.Values != null)
                         {
-                            string id = value.ToSimpleTextString(language);
+                            foreach (Value value in property.Values)
+                            {
+                                string id = value.ToSimpleTextString(language);
 
-                            enumTexts.Add(GetEnumTextForIdValue(id, dataType, language));
+                                enumTexts.Add(GetEnumTextForIdValue(id, dataType, language));
 
-                            result.Add(enumTexts);
+                                result.Add(enumTexts);
+                            }
                         }
                     }
                     else // property with single values
@@ -182,7 +188,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
         {
             string result = null;
 
-            if(index <= property.Values.Count - 1)
+            if(property.Values != null && index <= property.Values.Count - 1)
             {
                 Value value = property.Values[index];
                 if (value != null)
@@ -199,7 +205,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
         {
             List<string> result = new List<string>();
 
-            if (index <= property.Values.Count - 1)
+            if (property.Values != null && index <= property.Values.Count - 1)
             {
                 Value value = property.Values[index];
                 if (value != null && value.StringValue != null)
