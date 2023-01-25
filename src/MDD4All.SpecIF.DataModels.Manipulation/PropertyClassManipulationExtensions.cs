@@ -1,4 +1,5 @@
 ﻿using MDD4All.SpecIF.DataProvider.Contracts;
+using System.Collections.Generic;
 
 namespace MDD4All.SpecIF.DataModels.Manipulation
 {
@@ -17,5 +18,47 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 
             return result;
         }
+
+        public static void SetDefaultValue(this PropertyClass propertyClass, string defaultValue)
+        {
+            Value v = new Value(new MultilanguageText(defaultValue));
+            
+            if (defaultValue != null)
+            {
+                if (propertyClass.Values == null)
+                {
+                    propertyClass.Values = new List<Value>();
+                }
+
+                if (propertyClass.Values.Count > 0)
+                {
+                    propertyClass.Values[0] = v;
+                }
+                else
+                {
+                    propertyClass.Values.Add(v);
+                }
+            }
+        }
+
+        public static void SetMultilanguageText(this PropertyClass propertyClass, MultilanguageText multilanguageText)
+        {
+            Value v = new Value(multilanguageText);
+
+            if (propertyClass.Values == null)
+            {
+                propertyClass.Values = new List<Value>();
+            }
+
+            if (propertyClass.Values.Count > 0)
+            {
+                propertyClass.Values[0] = v;
+            }
+            else
+            {
+                propertyClass.Values.Add(v);
+            }
+        }
+
     }
 }
