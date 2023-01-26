@@ -188,7 +188,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
         {
             string result = null;
 
-            if(property.Values != null && index <= property.Values.Count - 1)
+            if(property != null && property.Values != null && index <= property.Values.Count - 1)
             {
                 Value value = property.Values[index];
                 if (value != null)
@@ -204,19 +204,21 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                                                          int index = 0)
         {
             List<string> result = new List<string>();
-
-            if (property.Values != null && index <= property.Values.Count - 1)
+            if (property != null)
             {
-                Value value = property.Values[index];
-                if (value != null && value.StringValue != null)
+                if (property.Values != null && index <= property.Values.Count - 1)
                 {
-                    string multiValueString = value.StringValue;
-
-                    string[] tokens = multiValueString.Split(new char[] { ',' });
-
-                    foreach(string token in tokens)
+                    Value value = property.Values[index];
+                    if (value != null && value.StringValue != null)
                     {
-                        result.Add(token);
+                        string multiValueString = value.StringValue;
+
+                        string[] tokens = multiValueString.Split(new char[] { ',' });
+
+                        foreach (string token in tokens)
+                        {
+                            result.Add(token);
+                        }
                     }
                 }
             }
@@ -224,138 +226,84 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             return result;
         }
 
-        public static void SetSingleEnumerationValue(this Property property,
-                                                     string valueID,
-                                                     int index = 0)
-        {
-            if(property.Values == null)
-            {
-                property.Values = new List<Value>();
-            }
-
-            // Add empty values if the index can not be used in current property structure
-            if(index > property.Values.Count - 1)
-            {
-                for(int counter = property.Values.Count; counter <= index; counter++)
-                {
-                    property.Values.Add(new Value());
-                }
-            }
-
-            property.Values[index].StringValue = valueID;
-        }
-
-        public static void SetMultipleEnumerationValue(this Property property,
-                                                       List<string> valueIds,
-                                                       int index = 0)
-        {
-            if (property.Values == null)
-            {
-                property.Values = new List<Value>();
-            }
-
-            // Add empty values if the index can not be used in current property structure
-            if (index > property.Values.Count - 1)
-            {
-                for (int counter = property.Values.Count; counter <= index; counter++)
-                {
-                    property.Values.Add(new Value());
-                }
-            }
-
-            string multiValue = "";
-
-            if (valueIds.Count > 0)
-            {
-                for (int counter = 0; counter < valueIds.Count; counter++)
-                {
-                    multiValue += valueIds[counter];
-
-                    if (counter < valueIds.Count - 1)
-                    {
-                        multiValue += ",";
-                    }
-                }
-
-
-                property.Values[index].StringValue = multiValue;
-            }
-            else
-            {
-                property.Values[index].StringValue = null;
-            }
-        }
-
+        
         public static bool IsDifferentTo(this Property propertyOne, Property propertyTwo)
         {
             bool result = false;
 
-            // only start compare operation if the classes are equal
-            if(propertyOne.Class.Equals(propertyTwo.Class))
+            if(propertyOne != null && propertyTwo != null)
             {
-                if (propertyOne.Values != null && propertyTwo.Values != null)
+                // only start compare operation if the classes are equal
+                if (propertyOne.Class.Equals(propertyTwo.Class))
                 {
-                    if (propertyOne.Values.Count == propertyTwo.Values.Count)
+                    if (propertyOne.Values != null && propertyTwo.Values != null)
                     {
-                        for (int counter = 0; counter < propertyOne.Values.Count; counter++)
+                        if (propertyOne.Values.Count == propertyTwo.Values.Count)
                         {
-                            Value valueOne = propertyOne.Values[counter];
-                            Value valueTwo = propertyTwo.Values[counter];
+                            for (int counter = 0; counter < propertyOne.Values.Count; counter++)
+                            {
+                                Value valueOne = propertyOne.Values[counter];
+                                Value valueTwo = propertyTwo.Values[counter];
 
-                            if(valueOne.StringValue != null && valueTwo.StringValue != null)
-                            {
-                                if(valueOne.StringValue != valueTwo.StringValue)
+                                if (valueOne.StringValue != null && valueTwo.StringValue != null)
                                 {
-                                    result = true;
-                                }
-                            }
-                            else if(valueOne.MultilanguageTexts != null && valueOne.MultilanguageTexts.Any() && 
-                                    valueTwo.MultilanguageTexts != null && valueTwo.MultilanguageTexts.Any())
-                            {
-                                if(valueOne.MultilanguageTexts.Count == valueTwo.MultilanguageTexts.Count)
-                                {
-                                    foreach(MultilanguageText multilanguageTextOne in valueOne.MultilanguageTexts)
+                                    if (valueOne.StringValue != valueTwo.StringValue)
                                     {
-                                        if(multilanguageTextOne.Language == null)
+                                        result = true;
+                                    }
+                                }
+                                else if (valueOne.MultilanguageTexts != null && valueOne.MultilanguageTexts.Any() &&
+                                        valueTwo.MultilanguageTexts != null && valueTwo.MultilanguageTexts.Any())
+                                {
+                                    if (valueOne.MultilanguageTexts.Count == valueTwo.MultilanguageTexts.Count)
+                                    {
+                                        foreach (MultilanguageText multilanguageTextOne in valueOne.MultilanguageTexts)
                                         {
-                                            MultilanguageText multilangiageTextTwo = valueTwo.MultilanguageTexts.Find(mlt => mlt.Language == null);
-                                            if(multilangiageTextTwo == null)
+                                            if (multilanguageTextOne.Language == null)
                                             {
-                                                result = true;
-                                            }
-                                            else
-                                            {
-                                                if(multilanguageTextOne.Text == multilangiageTextTwo.Text &&
-                                                   multilanguageTextOne.Format == multilangiageTextTwo.Format)
-                                                { 
-                                                    // it is equal
-                                                }
-                                                else
+                                                MultilanguageText multilangiageTextTwo = valueTwo.MultilanguageTexts.Find(mlt => mlt.Language == null);
+                                                if (multilangiageTextTwo == null)
                                                 {
                                                     result = true;
                                                 }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            MultilanguageText multilangiageTextTwo = valueTwo.MultilanguageTexts.Find(mlt => mlt.Language == multilanguageTextOne.Language);
-                                            if (multilangiageTextTwo == null)
-                                            {
-                                                result = true;
+                                                else
+                                                {
+                                                    if (multilanguageTextOne.Text == multilangiageTextTwo.Text &&
+                                                       multilanguageTextOne.Format == multilangiageTextTwo.Format)
+                                                    {
+                                                        // it is equal
+                                                    }
+                                                    else
+                                                    {
+                                                        result = true;
+                                                    }
+                                                }
                                             }
                                             else
                                             {
-                                                if (multilanguageTextOne.Text == multilangiageTextTwo.Text &&
-                                                   multilanguageTextOne.Format == multilangiageTextTwo.Format)
-                                                {
-                                                    // it is equal
-                                                }
-                                                else
+                                                MultilanguageText multilangiageTextTwo = valueTwo.MultilanguageTexts.Find(mlt => mlt.Language == multilanguageTextOne.Language);
+                                                if (multilangiageTextTwo == null)
                                                 {
                                                     result = true;
                                                 }
+                                                else
+                                                {
+                                                    if (multilanguageTextOne.Text == multilangiageTextTwo.Text &&
+                                                       multilanguageTextOne.Format == multilangiageTextTwo.Format)
+                                                    {
+                                                        // it is equal
+                                                    }
+                                                    else
+                                                    {
+                                                        result = true;
+                                                    }
+                                                }
                                             }
                                         }
+                                    }
+                                    else
+                                    {
+                                        result = true;
                                     }
                                 }
                                 else
@@ -363,18 +311,21 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                                     result = true;
                                 }
                             }
-                            else
-                            {
-                                result = true;
-                            }
+                        }
+                        else
+                        {
+                            result = true;
                         }
                     }
-                    else
-                    {
-                        result = true;
-                    }
                 }
-                
+            }
+            else if(propertyOne == null && propertyTwo == null)
+            {
+                result = false;
+            }
+            else
+            {
+                result = true;
             }
 
             return result;

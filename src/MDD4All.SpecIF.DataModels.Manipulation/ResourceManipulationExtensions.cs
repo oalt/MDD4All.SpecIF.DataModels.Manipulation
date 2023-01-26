@@ -27,7 +27,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                 {
                     resourceType = dataProvider.GetStatementClassByKey(resource.Class);
                 }
-                
+
 
                 if (resourceType != null)
                 {
@@ -69,7 +69,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                     {
                         result = resourceType.Revision;
                     }
-                    
+
                 }
             }
             catch (Exception exception)
@@ -322,9 +322,9 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                 ProjectID = resource.ProjectID,
             };
 
-            if(resource.AlternativeIDs!=null)
+            if (resource.AlternativeIDs != null)
             {
-                foreach(AlternativeId alternativeID in resource.AlternativeIDs)
+                foreach (AlternativeId alternativeID in resource.AlternativeIDs)
                 {
                     result.AlternativeIDs.Add(new AlternativeId()
                     {
@@ -335,50 +335,16 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                 }
             }
 
-            ResourceClass resourceClass = metadataReader.GetResourceClassByKey(resource.Class);
-
-            if (resourceClass != null)
+            foreach (Property property in resource.Properties)
             {
-                foreach (Key propertyClassKey in resourceClass.PropertyClasses)
+                if (property.Values != null && property.Values.Count > 0)
                 {
-                    Property property = new Property
+                    Property clonedProperty = new Property
                     {
-                        Class = new Key(propertyClassKey.ID, propertyClassKey.Revision),
+                        Class = new Key(property.Class.ID, property.Class.Revision),
                         Values = new List<Value>()
                     };
-                    result.Properties.Add(property);
-                }
-
-                foreach (Property property in resource.Properties)
-                {
-                    foreach (Property clonedProperty in result.Properties)
-                    {
-                        if (clonedProperty.Class.Equals(property.Class))
-                        {
-                            foreach (Value value in property.Values)
-                            {
-                                Value clonedValue = new Value();
-                                clonedValue.StringValue = value.StringValue;
-                                foreach (MultilanguageText text in value.MultilanguageTexts)
-                                {
-                                    clonedValue.MultilanguageTexts.Add(text);
-                                }
-                                clonedProperty.Values.Add(clonedValue);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (Property property in resource.Properties)
-                {
-                    Property clonedProperty = new Property()
-                    {
-                        Class = new Key(property.Class.ID, property.Class.Revision)
-
-                    };
-
+                    
 
                     foreach (Value value in property.Values)
                     {
@@ -391,8 +357,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                         clonedProperty.Values.Add(clonedValue);
                     }
 
-                    result.Properties.Add(clonedProperty);
-
+                    result.Properties.Add(property);
                 }
             }
 
