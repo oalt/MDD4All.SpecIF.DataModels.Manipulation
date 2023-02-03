@@ -91,6 +91,89 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             return result;
         }
 
+        public static void SetSingleStringValue(this Property property,
+                                                string value,
+                                                string language = "en",
+                                                string format = TextFormat.Plain)
+        {
+            if (value != null)
+            {
+                MultilanguageText multilanguageTextValue = new MultilanguageText
+                {
+                    Text = value,
+
+                };
+                if (language != "en")
+                {
+                    multilanguageTextValue.Language = language;
+                }
+
+                if (format != TextFormat.Plain)
+                {
+                    multilanguageTextValue.Format = format;
+                }
+
+                
+                if (property.Values.Count > 0)
+                {
+                    Value firstValue = property.Values[0];
+
+                    if (firstValue.MultilanguageTexts != null && firstValue.MultilanguageTexts.Any())
+                    {
+                        bool languageFound = false;
+                        foreach (MultilanguageText multilanguageText in firstValue.MultilanguageTexts)
+                        {
+                            if((multilanguageText.Language == null || multilanguageText.Language == "en") && language == "en")
+                            {
+                                multilanguageText.Text = value;
+                                languageFound = true;
+                                break;
+                            }
+                            else if(multilanguageText.Language != null && multilanguageText.Language == language)
+                            {
+                                multilanguageText.Text = value;
+                                languageFound = true;
+                                break;
+                            }
+                        }
+                        if(!languageFound)
+                        {
+                            firstValue.MultilanguageTexts.Add(multilanguageTextValue);
+                        }
+                    }
+                    else
+                    {
+                        if(firstValue.MultilanguageTexts == null)
+                        {
+                            firstValue.MultilanguageTexts = new List<MultilanguageText>();
+                            firstValue.MultilanguageTexts.Add(multilanguageTextValue);
+                        }
+                    }
+                }
+                else
+                {
+                    Value val = new Value(multilanguageTextValue);
+                    property.Values.Add(val);
+                }
+
+
+
+            }
+        }
+
+        public static void SetSingleNonStringValue(this Property property,
+                                                   string value)
+        {
+            if (property.Values.Count > 0)
+            {
+                property.Values[0].StringValue = value;
+            }
+            else
+            {
+                property.Values.Add(new Value(value));
+            }
+        }
+
         public static List<string> GetStringValues(this Property property, ISpecIfMetadataReader metadataReader, string language = "en")
         {
             List<string> result = new List<string>();
