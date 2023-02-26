@@ -1,19 +1,16 @@
 ﻿/*
  * Copyright (c) MDD4All.de, Dr. Oliver Alt
  */
-using MDD4All.SpecIF.DataProvider.Contracts;
-using System;
-using System.Linq;
 
 namespace MDD4All.SpecIF.DataModels.Manipulation
 {
     public static class HierarchyManipulationExtensions
     {
-		public static Node GetNodeByKey(this Node hierarchy, Key key)
+		public static Node GetNodeByID(this Node hierarchy, string id)
 		{
 			Node result = null;
 
-			if (hierarchy.ID == key.ID && hierarchy.Revision == key.Revision)
+			if (hierarchy.ID == id)
 			{
 				result = hierarchy;
 			}
@@ -21,7 +18,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 			{
 				foreach (Node rootNode in hierarchy.Nodes)
 				{
-					FindNodeRecursively(rootNode, key, ref result);
+					FindNodeRecursively(rootNode, id, ref result);
 					if (result != null)
 					{
 						break;
@@ -33,9 +30,26 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 			return result;
 		}
 
-		private static void FindNodeRecursively(Node node, Key key, ref Node result)
+        public static Node GetParentNode(this SpecIF specif, string childNode)
+        {
+            Node result = null;
+
+            foreach (Node hierarchy in specif.Hierarchies)
+            {
+
+                FindParentNodeRecusrsively(hierarchy, childNode, ref result);
+                if (result != null)
+                {
+                    break;
+                }
+            }
+            
+            return result;
+        }
+
+        private static void FindNodeRecursively(Node node, string id, ref Node result)
 		{
-			if(node.ID == key.ID && node.Revision == key.Revision)
+			if(node.ID == id)
 			{
 				result = node;
 			}
@@ -45,31 +59,52 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
 				{
 					foreach (Node child in node.Nodes)
 					{
-						FindNodeRecursively(child, key, ref result);
+						FindNodeRecursively(child, id, ref result);
 					}
 				}
 			}
 		}
 
-		//public static string GetResourceIdentifierPrefix(this Hierarchy hierarchy, ISpecIfMetadataReader dataProvider)
-		//{
-		//	string result = "";
+        public static void FindParentNodeRecusrsively(Node currentNode, string id, ref Node result)
+        {
+            foreach (Node childNode in currentNode.Nodes)
+            {
+                if (childNode.ID == id)
+                {
+                    result = currentNode;
+                    break;
+                }
+            }
 
-		//	try
-		//	{
-		//		string prefix = hierarchy.Properties.FirstOrDefault(prop => prop.Title == "identifierPrefix")?.GetStringValue(dataProvider);
+            if (result == null)
+            {
+                foreach (Node childNode in currentNode.Nodes)
+                {
+                    FindParentNodeRecusrsively(childNode, id, ref result);
+                }
+            }
 
-		//		if (prefix != null)
-		//		{
-		//			result = prefix;
-		//		}
-		//	}
-		//	catch(Exception)
-		//	{
+        }
 
-		//	}
+        //public static string GetResourceIdentifierPrefix(this Hierarchy hierarchy, ISpecIfMetadataReader dataProvider)
+        //{
+        //	string result = "";
 
-		//	return result;
-		//}
-	}
+        //	try
+        //	{
+        //		string prefix = hierarchy.Properties.FirstOrDefault(prop => prop.Title == "identifierPrefix")?.GetStringValue(dataProvider);
+
+        //		if (prefix != null)
+        //		{
+        //			result = prefix;
+        //		}
+        //	}
+        //	catch(Exception)
+        //	{
+
+        //	}
+
+        //	return result;
+        //}
+    }
 }
