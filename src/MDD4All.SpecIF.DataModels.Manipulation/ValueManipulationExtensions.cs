@@ -39,6 +39,34 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             return result;
         }
 
+        public static string GetDefaultLanguageStringValue(this Value value)
+        {
+            string result = default;
+
+            if(value.IsStringValue())
+            {
+                result = value.StringValue;
+            }
+            else
+            {
+                List<MultilanguageText> multilanguageTexts = value.MultilanguageTexts;
+
+                if (multilanguageTexts != null && multilanguageTexts.Count > 0)
+                {
+                    MultilanguageText multilanguageText = multilanguageTexts.First(v => v.Language == null || v.Language == "en");
+
+                    if (multilanguageText != null)
+                    {
+                        result = multilanguageText.Text;
+                    }
+                }
+            }
+
+            
+
+            return result;
+        }
+
         //public static string ToSimpleTextString(this object value)
         //{
         //    string result = "";

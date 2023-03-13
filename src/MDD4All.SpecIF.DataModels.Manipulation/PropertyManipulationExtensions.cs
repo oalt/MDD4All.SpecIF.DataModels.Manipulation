@@ -174,6 +174,37 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             }
         }
 
+        public static string GetSingleStringValue(this Property property, string language = "en")
+        {
+            string result = null;
+
+            if (property.Values.Count > 0)
+            {
+                Value firstValue = property.Values[0];
+
+                if(firstValue.MultilanguageTexts != null && firstValue.MultilanguageTexts.Any())
+                {
+                    MultilanguageText multilanguageText = null;
+                    if (language == "en")
+                    {
+                        multilanguageText = firstValue.MultilanguageTexts.Find(element => element.Language == null || element.Language == language);
+                    }
+                    else
+                    {
+                        multilanguageText = firstValue.MultilanguageTexts.Find(element => element.Language == language);
+                    }
+
+                    if(multilanguageText != null)
+                    {
+                        result = multilanguageText.Text;
+                    }
+                }
+            }
+
+
+             return result;
+        }
+
         public static List<string> GetStringValues(this Property property, ISpecIfMetadataReader metadataReader, string language = "en")
         {
             List<string> result = new List<string>();

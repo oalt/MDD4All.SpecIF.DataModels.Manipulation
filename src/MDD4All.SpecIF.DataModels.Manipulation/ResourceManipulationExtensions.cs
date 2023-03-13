@@ -288,6 +288,32 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             return result;
         }
 
+        public static string GetSingleStringPropertyValue(this Resource resource, Key propertyClassKey, string language = "en")
+        {
+            string result = null;
+
+            if (resource != null && resource.Properties != null)
+            {
+                foreach (Property property in resource.Properties)
+                {
+                    if (propertyClassKey.ID == property.Class.ID && propertyClassKey.Revision == property.Class.Revision)
+                    {
+                        List<Value> values = property.Values;
+
+                        if(values.Count > 0)
+                        {
+                            Value firstValue = values[0];
+                            result = firstValue.GetDefaultLanguageStringValue();
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public static void SetResourceTitle(this Resource resource, string title)
         {
             //if(resource.Title.LanguageValues.Count > 0)
