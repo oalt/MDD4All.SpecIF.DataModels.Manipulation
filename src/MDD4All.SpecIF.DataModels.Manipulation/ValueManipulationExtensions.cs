@@ -14,7 +14,7 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
             {
                 result = XmlConvert.ToTimeSpan(stringValue);
             }
-            catch(Exception exception) 
+            catch 
             {
                 ;
             }
