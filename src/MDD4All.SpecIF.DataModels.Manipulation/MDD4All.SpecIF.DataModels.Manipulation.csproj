@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Platforms>AnyCPU;x86</Platforms>
+      <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>MDD4All_Github.snk</AssemblyOriginatorKeyFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
