@@ -378,12 +378,17 @@ namespace MDD4All.SpecIF.DataModels.Manipulation
                         clonedValue.StringValue = value.StringValue;
                         foreach (MultilanguageText text in value.MultilanguageTexts)
                         {
-                            clonedValue.MultilanguageTexts.Add(text);
+                            MultilanguageText clonedText = new MultilanguageText();
+                            clonedText.Text = text.Text;
+                            clonedText.Language = text.Language;
+                            clonedText.Format = text.Format;
+
+                            clonedValue.MultilanguageTexts.Add(clonedText);
                         }
                         clonedProperty.Values.Add(clonedValue);
                     }
 
-                    result.Properties.Add(property);
+                    result.Properties.Add(clonedProperty);
                 }
             }
 
